@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:convert' as convert;
-import 'package:http/http.dart';
+import 'package:world_time/services/world_time.dart';
 
 class Loading extends StatefulWidget {
   Loading({Key key}) : super(key: key);
@@ -11,29 +10,29 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
 
-  void getData() async {
-    String url = 'https://jsonplaceholder.typicode.com/todos/1';
-    Response response = await get(url);
-
-    if (response.statusCode == 200) {
-      Map jsonResponse = convert.jsonDecode(response.body);
-      print(jsonResponse);
-      print(jsonResponse['userId']);
-    } else {
-      print('Error with status ${response.statusCode}');
-    }
+  void setupTime() async {
+    WorldTime worldTime = WorldTime(location: 'Berlin', flag: 'germany.png', url: 'Europe/Berlin');
+    await worldTime.getTime();
+    Navigator.pushReplacementNamed(context, '/home', arguments: {
+      'location': worldTime.location,
+      'flag': worldTime.flag,
+      'time': worldTime.time,
+    });
   }
-
+  
   @override
   void initState() {
     super.initState();
-    getData();
+    setupTime();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text('Loading Screen'),
+      body: Padding(
+        padding: const EdgeInsets.all(50.0),
+        child: Text('Loading'),
+      ),
     );
   }
 }
