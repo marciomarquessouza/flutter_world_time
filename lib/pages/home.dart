@@ -12,7 +12,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    localizationData = ModalRoute.of(context).settings.arguments;
+    localizationData = localizationData.isNotEmpty ? localizationData : ModalRoute.of(context).settings.arguments;
+
     String backgroundImg = localizationData['isDayTime'] ? 'day.png' : 'night.png';
     Color backgroundColor = localizationData['isDayTime'] ? Colors.blue : Colors.indigo;
 
@@ -31,8 +32,16 @@ class _HomeState extends State<Home> {
             child: Column(
               children: <Widget>[
                 FlatButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/location');
+                  onPressed: () async {
+                    dynamic result = await Navigator.pushNamed(context, '/location');
+                    setState(() {
+                      localizationData = {
+                        'location': result['location'],
+                        'flag': result['flag'],
+                        'time': result['time'],
+                        'isDayTime': result['isDayTime'],
+                      };
+                    });
                   },
                   icon: Icon(
                     Icons.edit_location,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
+import 'package:world_time/services/world_time.dart';
 
 class ChooseLocation extends StatefulWidget {
   ChooseLocation({Key key}) : super(key: key);
@@ -10,30 +9,35 @@ class ChooseLocation extends StatefulWidget {
 }
 
 class _ChooseLocationState extends State<ChooseLocation> {
-  int counter = 0;
-
-  void getData() async {
-    String url = 'https://www.googleapis.com/books/v1/volumes?q={terror}';
-    var response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      var jsonResponse = convert.jsonDecode(response.body);
-      var itemCount = jsonResponse['totalItems'];
-      print('Total number of books: $itemCount');
-    } else {
-      print('Request failed with status: ${response.statusCode}');
-    }
-  }
+  List<WorldTime> locations = [
+    WorldTime(url: 'Europe/London', location: 'London', flag: 'uk.png'),
+    WorldTime(url: 'Europe/Berlin', location: 'Athens', flag: 'greece.png'),
+    WorldTime(url: 'Africa/Cairo', location: 'Cairo', flag: 'egypt.png'),
+    WorldTime(url: 'Africa/Nairobi', location: 'Nairobi', flag: 'kenya.png'),
+    WorldTime(url: 'America/Chicago', location: 'Chicago', flag: 'usa.png'),
+    WorldTime(url: 'America/New_York', location: 'New York', flag: 'usa.png'),
+    WorldTime(url: 'Asia/Seoul', location: 'Seoul', flag: 'south_korea.png'),
+    WorldTime(url: 'Asia/Jakarta', location: 'Jakarta', flag: 'indonesia.png'),
+  ];
 
   @override
   void initState() {
     super.initState();
-    getData();
+  }
+
+  void updateTime(int index) async {
+    WorldTime worldTime = locations[index];
+    await worldTime.getTime();
+    Navigator.pop(context, {
+      'location': worldTime.location,
+      'flag': worldTime.flag,
+      'time': worldTime.time,
+      'isDayTime': worldTime.isDayTime,
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print('build funciton ran');
     return Scaffold(
       appBar: AppBar(
         title: Text('Choose a Location'),
@@ -41,16 +45,25 @@ class _ChooseLocationState extends State<ChooseLocation> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Text('Choose location screen $counter'),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            counter += 1;
-          });
+      body: ListView.builder(
+        itemCount: locations.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+            child: Card(
+              child: ListTile(
+                onTap: () {
+                  updateTime(index);
+                },
+                title: Text(locations[index].location),
+                leading: CircleAvatar(
+                  backgroundImage:
+                      AssetImage('assets/${locations[index].flag}'),
+                ),
+              ),
+            ),
+          );
         },
-        child: Icon(Icons.add),
       ),
     );
   }
