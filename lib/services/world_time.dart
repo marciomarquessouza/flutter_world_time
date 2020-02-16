@@ -7,6 +7,7 @@ class WorldTime {
   String time;
   String flag;
   String url;
+  bool isDayTime;
 
   WorldTime({ this.location, this.flag, this.url });
 
@@ -19,6 +20,7 @@ class WorldTime {
         String offset = jsonResponse['utc_offset'].substring(1,3);
         DateTime now = DateTime.parse(datetime);
         now = now.add(Duration(hours: int.parse(offset)));
+        isDayTime = now.hour > 6 && now.hour < 20;
         time = DateFormat.jm().format(now);
       } else {
         throw('Request failed with status ${response.statusCode}');
