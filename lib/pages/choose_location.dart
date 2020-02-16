@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class ChooseLocation extends StatefulWidget {
   ChooseLocation({Key key}) : super(key: key);
@@ -11,15 +13,16 @@ class _ChooseLocationState extends State<ChooseLocation> {
   int counter = 0;
 
   void getData() async {
-    String name = await Future.delayed(Duration(seconds: 5), () {
-      return 'Lion Man';
-    });
+    String url = 'https://www.googleapis.com/books/v1/volumes?q={terror}';
+    var response = await http.get(url);
 
-    String bio = await Future.delayed(Duration(seconds: 2), () {
-      return 'Samurai and Cat Lover';
-    });
-
-    print('name: $name - bio: $bio');
+    if (response.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(response.body);
+      var itemCount = jsonResponse['totalItems'];
+      print('Total number of books: $itemCount');
+    } else {
+      print('Request failed with status: ${response.statusCode}');
+    }
   }
 
   @override
